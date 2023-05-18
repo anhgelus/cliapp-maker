@@ -65,7 +65,7 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 			Option: Option{
 				TakeValue: false,
 				OptType:   nil,
-				Global:    Global{Name: o},
+				Global:    Global{Name: strings.Replace(o, "-", "", 1)},
 			},
 		})
 	}

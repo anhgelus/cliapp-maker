@@ -30,6 +30,7 @@ func TestCliParsing(t *testing.T) {
 			}
 		}
 		if !valid {
+			println(o.Name, o.Value)
 			t.Errorf("bad parsing of options, not enough information")
 		}
 	}
