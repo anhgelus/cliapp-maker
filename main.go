@@ -25,9 +25,7 @@ func (app CliApp) Handle() {
 		os.Exit(0)
 	}
 	cli := genCli(os.Args)
-	// parse options
 	options, nCli := parseOptions(cli)
-	// parse cmd name
 	for _, cmd := range app.Cmds {
 		if cmd.Name == os.Args[1] {
 			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(os.Args, nCli)})
@@ -47,7 +45,7 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 	for _, o := range opts {
 		nCli = strings.ReplaceAll(nCli, " "+o, "")
 		name := strings.ReplaceAll(strings.Split(o, " ")[0], "--", "")
-		value := strings.ReplaceAll(o, name+" ", "")
+		value := strings.ReplaceAll(o, "--"+name+" ", "")
 		options = append(options, OptionPassed{
 			Value: value,
 			Option: Option{
