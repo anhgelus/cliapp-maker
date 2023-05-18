@@ -43,7 +43,6 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 	simpleOption := regexp.MustCompile(`-[a-zA-Z]+`)
 	opts := option.FindAllString(cli, -1)
 	nCli := cli
-	simpleOpts := simpleOption.FindAllString(nCli, -1)
 	var options []OptionPassed
 	for _, o := range opts {
 		nCli = strings.ReplaceAll(nCli, " "+o, "")
@@ -58,6 +57,7 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 			},
 		})
 	}
+	simpleOpts := simpleOption.FindAllString(nCli, -1)
 	for _, o := range simpleOpts {
 		nCli = strings.ReplaceAll(nCli, " "+o, "")
 		options = append(options, OptionPassed{

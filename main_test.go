@@ -25,7 +25,7 @@ func TestCliParsing(t *testing.T) {
 	for _, o := range gotOpts {
 		valid := false
 		for _, o2 := range opts {
-			if o == o2 {
+			if o.Name == o2.Name && o.Value == o2.Value {
 				valid = true
 			}
 		}
