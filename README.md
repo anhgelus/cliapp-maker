@@ -4,6 +4,13 @@ A GoLang library aiming to help to make cli application.
 
 Lightweight and simple to use.
 
+## Install
+
+To install the library, just run 
+```bash
+$ go get github.com/anhgelus/cliapp-maker@latest
+```
+
 ## How to use
 
 *soon*
