@@ -83,7 +83,7 @@ func (cmd Cmd) genLine(args []string, nCli string) string {
 }
 
 func genLineForTest(name string, args []string, nCli string) string {
-	return strings.ReplaceAll(nCli, name+" ", "") + " " + os.Args[len(os.Args)-1]
+	return Cmd{Global: Global{Name: name}}.genLine(args, nCli)
 }
 
 func genArgsForTest(realCli string) []string {
