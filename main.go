@@ -26,8 +26,19 @@ func (app CliApp) Handle() {
 	}
 	cli := genCli(os.Args)
 	options, nCli := parseOptions(cli)
+	for _, o := range options {
+		if o.Name == "v" && o.TakeValue == false {
+			fmt.Printf("Version: %s\nNotes: %s", app.Version, app.VersionNote)
+		}
+	}
 	for _, cmd := range app.Cmds {
 		if cmd.Name == os.Args[1] {
+			for _, o := range options {
+				if o.Name == "h" && o.TakeValue == false {
+					println(cmd.Help)
+					os.Exit(0)
+				}
+			}
 			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(os.Args, nCli)})
 			os.Exit(0)
 		}
