@@ -19,7 +19,7 @@ To start using this library, you must understand the vocabulary used:
 - `Cmd` - Subcommand of your application (e.g.: `install` for `myapp install .`)
 - `Option` - The flags (e.g.: -v, --foo bar)
 - `Param` - The parameters of the subcommand (e.g.: `.` for `myapp install .`)
-    :warning: The param are not handled!
+    :warning: The param are not handled by our system, you must do this by yourself!
 
 Look at the CliApp type to understand how it works (a future refactor will change this, so I'll not finish this part before)
 
