@@ -3,7 +3,7 @@ package cliapp_maker
 import "go/types"
 
 type Option struct {
-	global
+	Global
 	TakeValue bool
 	OptType   types.Type
 }

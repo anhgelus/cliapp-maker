@@ -3,7 +3,7 @@ package cliapp_maker
 import "fmt"
 
 type Cmd struct {
-	global
+	Global
 	Options []Option
 	Params  []Param
 	Process func(data CmdData)

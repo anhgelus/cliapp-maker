@@ -3,7 +3,7 @@ package cliapp_maker
 import "go/types"
 
 type Param struct {
-	global
+	Global
 	ParamType types.Type
 }
 

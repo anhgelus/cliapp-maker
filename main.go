@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-type global struct {
+type Global struct {
 	Name string
 	Help string
 }
 
 type CliApp struct {
-	global
+	Global
 	Version     string
 	VersionNote string
 	Cmds        []Cmd
@@ -28,12 +28,32 @@ func (app CliApp) Handle() {
 	simpleOption := regexp.MustCompile(`-[a-zA-Z]+`)
 	opts := option.FindAllString(cli, -1)
 	nCli := cli
+	simpleOpts := simpleOption.FindAllString(nCli, -1)
+	var options []OptionPassed
 	for _, o := range opts {
-		nCli = strings.ReplaceAll(cli, o, "")
+		nCli = strings.ReplaceAll(nCli, o, "")
+		name := strings.ReplaceAll(strings.Split(o, " ")[0], "--", "")
+		value := strings.ReplaceAll(o, name+" ", "")
+		options = append(options, OptionPassed{
+			Value: value,
+			Option: Option{
+				TakeValue: true,
+				OptType:   nil,
+				Global:    Global{Name: name},
+			},
+		})
 	}
-	simpleOpts := option.FindAllString(nCli, -1)
-	//TODO: get every options' struct
-	//TODO: put them into options
+	for _, o := range simpleOpts {
+		nCli = strings.ReplaceAll(nCli, o, "")
+		options = append(options, OptionPassed{
+			Value: "",
+			Option: Option{
+				TakeValue: false,
+				OptType:   nil,
+				Global:    Global{Name: o},
+			},
+		})
+	}
 	//TODO: parse the command and parameters
 }
 
