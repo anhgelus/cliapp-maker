@@ -20,18 +20,33 @@ type CliApp struct {
 }
 
 func (app CliApp) Handle() {
-	cli := ""
-	for i := 1; i < len(os.Args)-2; i++ {
-		cli += " " + os.Args[0]
+	if len(os.Args) == 1 {
+		app.generateHelp()
+		os.Exit(0)
 	}
-	option := regexp.MustCompile(`--[a-zA-Z\-]+ [a-zA-Z0-9 ]+`)
+	cli := genCli(os.Args)
+	// parse options
+	options, nCli := parseOptions(cli)
+	// parse cmd name
+	for _, cmd := range app.Cmds {
+		if cmd.Name == os.Args[1] {
+			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(os.Args, nCli)})
+			os.Exit(0)
+		}
+	}
+	fmt.Printf("The command %s does not exist", os.Args[1])
+	os.Exit(1)
+}
+
+func parseOptions(cli string) ([]OptionPassed, string) {
+	option := regexp.MustCompile(`--[a-zA-Z\-]+ [a-zA-Z0-9\-_]`)
 	simpleOption := regexp.MustCompile(`-[a-zA-Z]+`)
 	opts := option.FindAllString(cli, -1)
 	nCli := cli
 	simpleOpts := simpleOption.FindAllString(nCli, -1)
 	var options []OptionPassed
 	for _, o := range opts {
-		nCli = strings.ReplaceAll(nCli, o, "")
+		nCli = strings.ReplaceAll(nCli, " "+o, "")
 		name := strings.ReplaceAll(strings.Split(o, " ")[0], "--", "")
 		value := strings.ReplaceAll(o, name+" ", "")
 		options = append(options, OptionPassed{
@@ -44,7 +59,7 @@ func (app CliApp) Handle() {
 		})
 	}
 	for _, o := range simpleOpts {
-		nCli = strings.ReplaceAll(nCli, o, "")
+		nCli = strings.ReplaceAll(nCli, " "+o, "")
 		options = append(options, OptionPassed{
 			Value: "",
 			Option: Option{
@@ -54,7 +69,27 @@ func (app CliApp) Handle() {
 			},
 		})
 	}
-	//TODO: parse the command and parameters
+	return options, nCli
+}
+
+func genCli(args []string) string {
+	cli := args[1]
+	for i := 2; i < len(args)-1; i++ {
+		cli += " " + args[i]
+	}
+	return cli
+}
+
+func (cmd Cmd) genLine(args []string, nCli string) string {
+	return strings.ReplaceAll(nCli, cmd.Name+" ", "") + " " + args[len(args)-1]
+}
+
+func genLineForTest(name string, args []string, nCli string) string {
+	return strings.ReplaceAll(nCli, name+" ", "") + " " + os.Args[len(os.Args)-1]
+}
+
+func genArgsForTest(realCli string) []string {
+	return strings.Split(realCli, " ")
 }
 
 func (app CliApp) generateHelp() {

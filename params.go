@@ -6,8 +6,3 @@ type Param struct {
 	Global
 	ParamType types.Type
 }
-
-type ParamPassed struct {
-	Name  string
-	Value string
-}

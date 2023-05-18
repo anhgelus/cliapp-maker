@@ -12,7 +12,7 @@ type Cmd struct {
 type CmdData struct {
 	Name          string
 	OptionsPassed []OptionPassed
-	ParamsPassed  []ParamPassed
+	Line          string
 }
 
 func (cmd Cmd) generateHelp() {
