@@ -15,7 +15,22 @@ type CmdData struct {
 	Line          string
 }
 
-func (cmd Cmd) generateHelp() {
+func (cmd *Cmd) SetOptions(o []Option) *Cmd {
+	cmd.Options = o
+	return cmd
+}
+
+func (cmd *Cmd) SetParams(p []Param) *Cmd {
+	cmd.Params = p
+	return cmd
+}
+
+func (cmd *Cmd) SetProcess(fn func(data CmdData)) *Cmd {
+	cmd.Process = fn
+	return cmd
+}
+
+func (cmd *Cmd) generateHelp() {
 	fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
 	params := ""
 	for _, v := range cmd.Params {

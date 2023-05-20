@@ -124,12 +124,13 @@ func genCli(args []string) string {
 	return cli
 }
 
-func (cmd Cmd) genLine(args []string, nCli string) string {
+func (cmd *Cmd) genLine(args []string, nCli string) string {
 	return strings.ReplaceAll(nCli, cmd.Name+" ", "") + " " + args[len(args)-1]
 }
 
 func genLineForTest(name string, args []string, nCli string) string {
-	return Cmd{Global: Global{Name: name}}.genLine(args, nCli)
+	cmd := Cmd{Global: Global{Name: name}}
+	return cmd.genLine(args, nCli)
 }
 
 func genArgsForTest(realCli string) []string {
