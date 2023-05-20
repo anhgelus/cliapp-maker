@@ -21,6 +21,8 @@ To start using this library, you must understand the vocabulary used:
 - `Param` - The parameters of the subcommand (e.g.: `.` for `myapp install .`)
     :warning: The param are not handled by our system, you must do it by yourself!
 
+**This part is not updated!** I'll do this later.
+
 Look at the CliApp type to understand how it works (a future refactor will change this, so I'll not finish this part before)
 
 ## Features
