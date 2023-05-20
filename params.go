@@ -4,5 +4,5 @@ import "go/types"
 
 type Param struct {
 	Global
-	ParamType types.Type
+	ParamType types.BasicKind
 }

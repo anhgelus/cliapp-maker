@@ -5,7 +5,7 @@ import "go/types"
 type Option struct {
 	Global
 	TakeValue bool
-	OptType   types.Type
+	OptType   types.BasicKind
 }
 
 type OptionPassed struct {

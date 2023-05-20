@@ -20,35 +20,40 @@ type CliApp struct {
 }
 
 func (app CliApp) Handle() {
-	if len(os.Args) == 1 {
+	app.handle(os.Args)
+}
+
+func (app CliApp) handle(args []string) {
+	if len(args) == 1 {
 		app.generateHelp()
-		os.Exit(0)
+		return
 	}
-	cli := genCli(os.Args)
+	cli := genCli(args)
 	options, nCli := parseOptions(cli)
 	for _, o := range options {
 		if o.Name == "v" && o.TakeValue == false {
 			fmt.Printf("Version: %s\nNotes: %s", app.Version, app.VersionNote)
+			return
 		}
 	}
 	for _, cmd := range app.Cmds {
-		if cmd.Name == os.Args[1] {
+		if cmd.Name == args[1] {
 			for _, o := range options {
 				if o.Name == "h" && o.TakeValue == false {
 					println(cmd.Help)
-					os.Exit(0)
+					return
 				}
 			}
-			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(os.Args, nCli)})
-			os.Exit(0)
+			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(args, nCli)})
+			return
 		}
 	}
-	fmt.Printf("The command %s does not exist", os.Args[1])
-	os.Exit(1)
+	fmt.Printf("The command %s does not exist", args[1])
+	return
 }
 
 func parseOptions(cli string) ([]OptionPassed, string) {
-	option := regexp.MustCompile(`--[a-zA-Z\-]+ [a-zA-Z0-9\-_]`)
+	option := regexp.MustCompile(`--[a-zA-Z\-]+ [a-zA-Z0-9\-_]+`)
 	simpleOption := regexp.MustCompile(`-[a-zA-Z]+`)
 	opts := option.FindAllString(cli, -1)
 	nCli := cli
@@ -61,7 +66,6 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 			Value: value,
 			Option: Option{
 				TakeValue: true,
-				OptType:   nil,
 				Global:    Global{Name: name},
 			},
 		})
@@ -73,7 +77,6 @@ func parseOptions(cli string) ([]OptionPassed, string) {
 			Value: "",
 			Option: Option{
 				TakeValue: false,
-				OptType:   nil,
 				Global:    Global{Name: strings.Replace(o, "-", "", 1)},
 			},
 		})

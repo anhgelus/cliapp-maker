@@ -19,12 +19,12 @@ func (cmd Cmd) generateHelp() {
 	fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
 	params := ""
 	for _, v := range cmd.Params {
-		params += " " + v.Name + " (" + v.ParamType.String() + ")"
+		params += " " + v.Name + " (" + string(rune(v.ParamType)) + ")"
 	}
 	fmt.Printf("%s - %s\n", cmd.Name, params)
 	for _, opt := range cmd.Options {
 		if opt.TakeValue {
-			fmt.Printf("--%s %s - %s\n", opt.Name, opt.OptType.String(), opt.Help)
+			fmt.Printf("--%s %s - %s\n", opt.Name, string(rune(opt.OptType)), opt.Help)
 			continue
 		}
 		fmt.Printf("-%s - %s\n", opt.Name, opt.Help)
