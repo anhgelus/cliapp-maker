@@ -34,7 +34,7 @@ Look at the CliApp type to understand how it works (a future refactor will chang
 
 ### In coming refactor
 
-- [ ] Better management of basic cli features
+- [x] Better management of basic cli features (look at #1)
 
 ## Technologies
 
