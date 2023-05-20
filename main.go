@@ -19,11 +19,36 @@ type CliApp struct {
 	Cmds        []Cmd
 }
 
-func (app CliApp) Handle() {
+func (g *Global) SetName(s string) *Global {
+	g.Name = s
+	return g
+}
+
+func (g *Global) SetHelp(s string) *Global {
+	g.Help = s
+	return g
+}
+
+func (app *CliApp) SetVersion(s string) *CliApp {
+	app.Version = s
+	return app
+}
+
+func (app *CliApp) SetVersionNote(s string) *CliApp {
+	app.VersionNote = s
+	return app
+}
+
+func (app *CliApp) SetCommands(cmds []Cmd) *CliApp {
+	app.Cmds = cmds
+	return app
+}
+
+func (app *CliApp) Handle() {
 	app.handle(os.Args)
 }
 
-func (app CliApp) handle(args []string) {
+func (app *CliApp) handle(args []string) {
 	if len(args) == 1 {
 		app.generateHelp()
 		return
@@ -50,6 +75,13 @@ func (app CliApp) handle(args []string) {
 	}
 	fmt.Printf("The command %s does not exist", args[1])
 	return
+}
+
+func (app *CliApp) generateHelp() {
+	println(app.Name)
+	for _, cmd := range app.Cmds {
+		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
+	}
 }
 
 func parseOptions(cli string) ([]OptionPassed, string) {
@@ -92,21 +124,15 @@ func genCli(args []string) string {
 	return cli
 }
 
-func (cmd Cmd) genLine(args []string, nCli string) string {
+func (cmd *Cmd) genLine(args []string, nCli string) string {
 	return strings.ReplaceAll(nCli, cmd.Name+" ", "") + " " + args[len(args)-1]
 }
 
 func genLineForTest(name string, args []string, nCli string) string {
-	return Cmd{Global: Global{Name: name}}.genLine(args, nCli)
+	cmd := Cmd{Global: Global{Name: name}}
+	return cmd.genLine(args, nCli)
 }
 
 func genArgsForTest(realCli string) []string {
 	return strings.Split(realCli, " ")
-}
-
-func (app CliApp) generateHelp() {
-	println(app.Name)
-	for _, cmd := range app.Cmds {
-		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
-	}
 }

@@ -48,49 +48,28 @@ func TestCliParsing(t *testing.T) {
 }
 
 func TestBasicApp(t *testing.T) {
-	app := CliApp{
-		Global: Global{
-			Name: "Test App",
-			Help: "Just a test app",
-		},
-		Version:     "1.0.0",
-		VersionNote: "Test app",
-		Cmds: []Cmd{
-			{
-				Global: Global{
-					Name: "test",
-					Help: "Test",
-				},
-				Options: []Option{
-					{
-						Global: Global{
-							Name: "test",
-							Help: "Test",
-						},
-						TakeValue: true,
-						OptType:   types.String,
-					},
-				},
-				Params: []Param{
-					{
-						Global: Global{
-							Name: "try",
-							Help: "Try 1",
-						},
-						ParamType: types.String,
-					},
-					{
-						Global: Global{
-							Name: "hello",
-							Help: "Try 2",
-						},
-						ParamType: types.String,
-					},
-				},
-				Process: processTest,
-			},
-		},
-	}
+	app := CliApp{}
+	// Global
+	app.SetName("Test App").SetHelp("Just a test app")
+	// Version
+	app.SetVersion("1.0.0").SetVersionNote("Test app version")
+	// Commands
+	test := Cmd{}
+	test.SetName("test").SetHelp("Test")
+
+	optTest := Option{}
+	optTest.SetTakeValue(true).SetType(types.String).SetName("test").SetHelp("Test")
+	test.SetOptions([]Option{optTest})
+
+	try := Param{}
+	try.SetType(types.String).SetName("try").SetHelp("Try 1")
+	hello := Param{}
+	hello.SetType(types.String).SetName("hello").SetName("Try 2")
+	test.SetParams([]Param{try, hello})
+
+	test.SetProcess(processTest)
+	app.SetCommands([]Cmd{test})
+
 	realCli := "bin test try1 try2"
 	app.handle(genArgsForTest(realCli))
 	testError(t)
