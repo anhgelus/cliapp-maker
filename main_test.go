@@ -54,40 +54,36 @@ func TestBasicApp(t *testing.T) {
 	// Version
 	app.SetVersion("1.0.0").SetVersionNote("Test app version")
 	// Commands
-	app.SetCommands([]Cmd{
+	test := Cmd{}
+	test.SetName("test").SetHelp("Test")
+	test.SetOptions([]Option{
 		{
 			Global: Global{
 				Name: "test",
 				Help: "Test",
 			},
-			Options: []Option{
-				{
-					Global: Global{
-						Name: "test",
-						Help: "Test",
-					},
-					TakeValue: true,
-					OptType:   types.String,
-				},
+			TakeValue: true,
+			OptType:   types.String,
+		},
+	}).SetParams([]Param{
+		{
+			Global: Global{
+				Name: "try",
+				Help: "Try 1",
 			},
-			Params: []Param{
-				{
-					Global: Global{
-						Name: "try",
-						Help: "Try 1",
-					},
-					ParamType: types.String,
-				},
-				{
-					Global: Global{
-						Name: "hello",
-						Help: "Try 2",
-					},
-					ParamType: types.String,
-				},
+			ParamType: types.String,
+		},
+		{
+			Global: Global{
+				Name: "hello",
+				Help: "Try 2",
 			},
-			Process: processTest,
-		}})
+			ParamType: types.String,
+		},
+	})
+	test.SetProcess(processTest)
+	app.SetCommands([]Cmd{test})
+
 	realCli := "bin test try1 try2"
 	app.handle(genArgsForTest(realCli))
 	testError(t)
