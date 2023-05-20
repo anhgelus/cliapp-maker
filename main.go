@@ -19,11 +19,21 @@ type CliApp struct {
 	Cmds        []Cmd
 }
 
-func (app CliApp) Handle() {
+func (g *Global) SetName(s string) *Global {
+	g.Name = s
+	return g
+}
+
+func (g *Global) SetHelp(s string) *Global {
+	g.Help = s
+	return g
+}
+
+func (app *CliApp) Handle() {
 	app.handle(os.Args)
 }
 
-func (app CliApp) handle(args []string) {
+func (app *CliApp) handle(args []string) {
 	if len(args) == 1 {
 		app.generateHelp()
 		return
@@ -50,6 +60,13 @@ func (app CliApp) handle(args []string) {
 	}
 	fmt.Printf("The command %s does not exist", args[1])
 	return
+}
+
+func (app *CliApp) generateHelp() {
+	println(app.Name)
+	for _, cmd := range app.Cmds {
+		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
+	}
 }
 
 func parseOptions(cli string) ([]OptionPassed, string) {
@@ -102,11 +119,4 @@ func genLineForTest(name string, args []string, nCli string) string {
 
 func genArgsForTest(realCli string) []string {
 	return strings.Split(realCli, " ")
-}
-
-func (app CliApp) generateHelp() {
-	println(app.Name)
-	for _, cmd := range app.Cmds {
-		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
-	}
 }
