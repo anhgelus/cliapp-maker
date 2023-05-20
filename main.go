@@ -29,6 +29,21 @@ func (g *Global) SetHelp(s string) *Global {
 	return g
 }
 
+func (app *CliApp) SetVersion(s string) *CliApp {
+	app.Version = s
+	return app
+}
+
+func (app *CliApp) SetVersionNote(s string) *CliApp {
+	app.VersionNote = s
+	return app
+}
+
+func (app *CliApp) SetCommands(cmds []Cmd) *CliApp {
+	app.Cmds = cmds
+	return app
+}
+
 func (app *CliApp) Handle() {
 	app.handle(os.Args)
 }
