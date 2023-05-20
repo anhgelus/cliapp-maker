@@ -7,7 +7,7 @@ type Param struct {
 	ParamType types.BasicKind
 }
 
-func (p *Param) SetParamType(t types.BasicKind) *Param {
+func (p *Param) SetType(t types.BasicKind) *Param {
 	p.ParamType = t
 	return p
 }
