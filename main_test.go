@@ -1,8 +1,12 @@
 package cliapp_maker
 
 import (
+	"fmt"
+	"go/types"
 	"testing"
 )
+
+var errorDuringTest error
 
 func TestCliParsing(t *testing.T) {
 	realCli := "bin cmd -o --value 1 param"
@@ -12,8 +16,8 @@ func TestCliParsing(t *testing.T) {
 		t.Errorf("bad generation of cli\nexcepted: %s\ngot: %s", "cmd -o --value 1", cli)
 	}
 	opts := []OptionPassed{
-		{Value: "1", Option: Option{TakeValue: true, OptType: nil, Global: Global{Name: "value"}}},
-		{Value: "", Option: Option{TakeValue: false, OptType: nil, Global: Global{Name: "o"}}},
+		{Value: "1", Option: Option{TakeValue: true, Global: Global{Name: "value"}}},
+		{Value: "", Option: Option{TakeValue: false, Global: Global{Name: "o"}}},
 	}
 	gotOpts, nCli := parseOptions(cli)
 	if len(opts) != len(gotOpts) {
@@ -40,5 +44,100 @@ func TestCliParsing(t *testing.T) {
 	line := genLineForTest("cmd", args, nCli)
 	if line != "cmd param" {
 		t.Errorf("bad generation of line\nexcepted: %s\ngot: %s", "cmd param", line)
+	}
+}
+
+func TestBasicApp(t *testing.T) {
+	app := CliApp{
+		Global: Global{
+			Name: "Test App",
+			Help: "Just a test app",
+		},
+		Version:     "1.0.0",
+		VersionNote: "Test app",
+		Cmds: []Cmd{
+			{
+				Global: Global{
+					Name: "test",
+					Help: "Test",
+				},
+				Options: []Option{
+					{
+						Global: Global{
+							Name: "test",
+							Help: "Test",
+						},
+						TakeValue: true,
+						OptType:   types.String,
+					},
+				},
+				Params: []Param{
+					{
+						Global: Global{
+							Name: "try",
+							Help: "Try 1",
+						},
+						ParamType: types.String,
+					},
+					{
+						Global: Global{
+							Name: "hello",
+							Help: "Try 2",
+						},
+						ParamType: types.String,
+					},
+				},
+				Process: processTest,
+			},
+		},
+	}
+	realCli := "bin test try1 try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+	realCli = "bin -v test try1 try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+	realCli = "bin test -v try1 try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+	realCli = "bin test try1 -v try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+	realCli = "bin test try1 --test hello try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+	realCli = "bin test try1 --test hello -v try2"
+	app.handle(genArgsForTest(realCli))
+	testError(t)
+}
+
+func testError(t *testing.T) {
+	if errorDuringTest != nil {
+		t.Errorf(errorDuringTest.Error())
+	}
+	errorDuringTest = nil
+}
+
+func processTest(data CmdData) {
+	if data.Line != "try1 try2" {
+		errorDuringTest = fmt.Errorf("bad line\nexcepted: %s\ngot: %s", "try1 try2", data.Line)
+		return
+	}
+	if data.Name != "test" {
+		errorDuringTest = fmt.Errorf("bad name\nexcepted: %s\ngot: %s", "test", data.Name)
+		return
+	}
+	for _, o := range data.OptionsPassed {
+		if o.Name != "test" {
+			return
+		}
+		if o.TakeValue == false {
+			errorDuringTest = fmt.Errorf("bad option passed\nexcepted: %s\ngot: %s", "true", "false")
+			return
+		}
+		if o.Value != "hello" {
+			errorDuringTest = fmt.Errorf("bad option value passed\nexcepted: %s\ngot: %s", "hello", o.Value)
+			return
+		}
 	}
 }
