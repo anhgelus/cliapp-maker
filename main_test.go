@@ -65,22 +65,14 @@ func TestBasicApp(t *testing.T) {
 			TakeValue: true,
 			OptType:   types.String,
 		},
-	}).SetParams([]Param{
-		{
-			Global: Global{
-				Name: "try",
-				Help: "Try 1",
-			},
-			ParamType: types.String,
-		},
-		{
-			Global: Global{
-				Name: "hello",
-				Help: "Try 2",
-			},
-			ParamType: types.String,
-		},
 	})
+
+	try := Param{}
+	try.SetParamType(types.String).SetName("try").SetHelp("Try 1")
+	hello := Param{}
+	hello.SetParamType(types.String).SetName("hello").SetName("Try 2")
+	test.SetParams([]Param{try, hello})
+
 	test.SetProcess(processTest)
 	app.SetCommands([]Cmd{test})
 
