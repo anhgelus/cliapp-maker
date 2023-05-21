@@ -71,22 +71,40 @@ func TestBasicApp(t *testing.T) {
 	app.SetCommands([]Cmd{test})
 
 	realCli := "bin test try1 try2"
-	app.handle(genArgsForTest(realCli))
+	err := app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 	realCli = "bin -v test try1 try2"
-	app.handle(genArgsForTest(realCli))
+	err = app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 	realCli = "bin test -v try1 try2"
-	app.handle(genArgsForTest(realCli))
+	err = app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 	realCli = "bin test try1 -v try2"
-	app.handle(genArgsForTest(realCli))
+	err = app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 	realCli = "bin test try1 --test hello try2"
-	app.handle(genArgsForTest(realCli))
+	err = app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 	realCli = "bin test try1 --test hello -v try2"
-	app.handle(genArgsForTest(realCli))
+	err = app.handle(genArgsForTest(realCli))
+	if err != nil {
+		t.Error(err.Error())
+	}
 	testError(t)
 }
 

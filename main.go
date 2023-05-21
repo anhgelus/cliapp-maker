@@ -19,6 +19,43 @@ type CliApp struct {
 	Cmds        []Cmd
 }
 
+type Context struct {
+	App *CliApp
+	// CmdCalled can be nil if there is no command
+	CmdCalled *Cmd
+}
+
+var (
+	globalOptions = make([]Option, 2)
+)
+
+func init() {
+	help := Option{}
+	help.SetTakeValue(false).SetProcess(handleHelp).SetName("h").SetHelp("Show the help")
+	version := Option{}
+	version.SetTakeValue(false).SetProcess(handleVersion).SetName("v").SetHelp("Show the version")
+	globalOptions = append(globalOptions, help, version)
+}
+
+// AddGlobalOption add an option to the global option's array
+func AddGlobalOption(o Option) {
+	globalOptions = append(globalOptions, o)
+}
+
+func handleVersion(data *OptionPassed) bool {
+	fmt.Printf("Version: %s\nNotes: %s", data.Context.App.Version, data.Context.App.VersionNote)
+	return false
+}
+
+func handleHelp(data *OptionPassed) bool {
+	if data.CmdCalled != nil {
+		data.App.generateHelp()
+	} else {
+		data.CmdCalled.generateHelp()
+	}
+	return false
+}
+
 func (g *Global) SetName(s string) *Global {
 	g.Name = s
 	return g
@@ -48,33 +85,40 @@ func (app *CliApp) Handle() {
 	app.handle(os.Args)
 }
 
-func (app *CliApp) handle(args []string) {
+func (app *CliApp) handle(args []string) error {
 	if len(args) == 1 {
 		app.generateHelp()
-		return
+		return nil
 	}
 	cli := genCli(args)
 	options, nCli := parseOptions(cli)
-	for _, o := range options {
-		if o.Name == "v" && o.TakeValue == false {
-			fmt.Printf("Version: %s\nNotes: %s", app.Version, app.VersionNote)
-			return
-		}
-	}
+
 	for _, cmd := range app.Cmds {
 		if cmd.Name == args[1] {
-			for _, o := range options {
-				if o.Name == "h" && o.TakeValue == false {
-					println(cmd.Help)
-					return
-				}
+			if !app.handleOptions(&cmd, options) {
+				return nil
 			}
 			cmd.Process(CmdData{Name: cmd.Name, OptionsPassed: options, Line: cmd.genLine(args, nCli)})
-			return
+			return nil
 		}
 	}
+	if !app.handleOptions(nil, options) {
+		return nil
+	}
 	fmt.Printf("The command %s does not exist", args[1])
-	return
+	return fmt.Errorf("The command %s does not exist", args[1])
+}
+
+func (app *CliApp) handleOptions(cmd *Cmd, opts []OptionPassed) bool {
+	for _, opt := range opts {
+		opt.Context = Context{App: app, CmdCalled: cmd}
+		for _, o := range globalOptions {
+			if o.Name == opt.Name && o.TakeValue == opt.TakeValue {
+				return o.Process(&opt)
+			}
+		}
+	}
+	return false
 }
 
 func (app *CliApp) generateHelp() {

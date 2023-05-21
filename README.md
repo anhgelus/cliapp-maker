@@ -29,8 +29,8 @@ Look at the CliApp type to understand how it works (a future refactor will chang
 
 - [x] Basic cli features (options, subcommand and params support)
 - [x] Automatic help handler (with the option -h or without subcommand)
+- [x] Customisable global options
 - [ ] Beautiful display
-- [ ] Customisable global options
 
 ### In coming refactor
 
