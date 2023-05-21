@@ -30,18 +30,22 @@ func (cmd *Cmd) SetProcess(fn func(data CmdData)) *Cmd {
 	return cmd
 }
 
-func (cmd *Cmd) generateHelp() {
-	fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
+func (cmd *Cmd) GenerateHelp() {
+	fmt.Println(FormatHelp(cmd.Name, cmd.Help))
 	params := ""
-	for _, v := range cmd.Params {
-		params += " " + v.Name + " (" + string(rune(v.ParamType)) + ")"
-	}
-	fmt.Printf("%s - %s\n", cmd.Name, params)
-	for _, opt := range cmd.Options {
-		if opt.TakeValue {
-			fmt.Printf("--%s %s - %s\n", opt.Name, string(rune(opt.OptType)), opt.Help)
+	for i, v := range cmd.Params {
+		if i == 0 {
+			params += fmt.Sprintf("%s %s", primary(v.Name), notice("("+string(rune(v.ParamType))+")"))
 			continue
 		}
-		fmt.Printf("-%s - %s\n", opt.Name, opt.Help)
+		params += fmt.Sprintf(" %s %s", primary(v.Name), notice("("+string(rune(v.ParamType))+")"))
+	}
+	fmt.Println(params)
+	for _, opt := range cmd.Options {
+		if opt.TakeValue {
+			fmt.Printf("%s %s - %s\n", primary("--"+opt.Name), notice(string(rune(opt.OptType))), secondary(opt.Help))
+			continue
+		}
+		fmt.Printf("%s - %s\n", primary("-"+opt.Name), secondary(opt.Help))
 	}
 }

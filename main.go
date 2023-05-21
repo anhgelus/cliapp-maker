@@ -2,6 +2,7 @@ package cliapp_maker
 
 import (
 	"fmt"
+	"github.com/gookit/color"
 	"os"
 	"regexp"
 	"strings"
@@ -27,6 +28,9 @@ type Context struct {
 
 var (
 	globalOptions = make([]Option, 2)
+	secondary     = color.Secondary.Render
+	notice        = color.Notice.Render
+	primary       = color.Primary.Render
 )
 
 func init() {
@@ -43,7 +47,7 @@ func AddGlobalOption(o Option) {
 }
 
 func handleVersion(data *OptionPassed) bool {
-	fmt.Printf("Version: %s\nNotes: %s", data.Context.App.Version, data.Context.App.VersionNote)
+	color.Info.Tips("Version: %s\nNotes: %s", data.Context.App.Version, data.Context.App.VersionNote)
 	return false
 }
 
@@ -51,7 +55,7 @@ func handleHelp(data *OptionPassed) bool {
 	if data.CmdCalled != nil {
 		data.App.generateHelp()
 	} else {
-		data.CmdCalled.generateHelp()
+		data.CmdCalled.GenerateHelp()
 	}
 	return false
 }
@@ -81,8 +85,8 @@ func (app *CliApp) SetCommands(cmds []Cmd) *CliApp {
 	return app
 }
 
-func (app *CliApp) Handle() {
-	app.handle(os.Args)
+func (app *CliApp) Handle() error {
+	return app.handle(os.Args)
 }
 
 func (app *CliApp) handle(args []string) error {
@@ -105,7 +109,7 @@ func (app *CliApp) handle(args []string) error {
 	if !app.handleOptions(nil, options) {
 		return nil
 	}
-	fmt.Printf("The command %s does not exist", args[1])
+	color.Error.Printf("The command %s does not exist", args[1])
 	return fmt.Errorf("The command %s does not exist", args[1])
 }
 
@@ -124,7 +128,7 @@ func (app *CliApp) handleOptions(cmd *Cmd, opts []OptionPassed) bool {
 func (app *CliApp) generateHelp() {
 	println(app.Name)
 	for _, cmd := range app.Cmds {
-		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
+		fmt.Println(FormatHelp(cmd.Name, cmd.Help))
 	}
 }
 
