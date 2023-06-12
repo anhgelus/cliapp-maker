@@ -18,6 +18,7 @@ type CliApp struct {
 	Version     string
 	VersionNote string
 	Cmds        []Cmd
+	CharsMax    uint
 }
 
 type Context struct {
@@ -53,7 +54,7 @@ func handleVersion(data *OptionPassed) bool {
 
 func handleHelp(data *OptionPassed) bool {
 	if data.CmdCalled != nil {
-		data.App.generateHelp()
+		data.App.GenerateHelp()
 	} else {
 		data.CmdCalled.GenerateHelp()
 	}
@@ -91,7 +92,7 @@ func (app *CliApp) Handle() error {
 
 func (app *CliApp) handle(args []string) error {
 	if len(args) == 1 {
-		app.generateHelp()
+		app.GenerateHelp()
 		return nil
 	}
 	cli := genCli(args)
@@ -125,11 +126,57 @@ func (app *CliApp) handleOptions(cmd *Cmd, opts []OptionPassed) bool {
 	return false
 }
 
-func (app *CliApp) generateHelp() {
+func (app *CliApp) GenerateHelp() {
 	println(app.Name)
+	fLen := 0
+	str := ""
 	for _, cmd := range app.Cmds {
-		fmt.Println(FormatHelp(cmd.Name, cmd.Help))
+		format := FormatHelp(cmd.Name, cmd.Help)
+		formatted := FormatStringMaxChars(format, app.CharsMax)
+		for _, f := range formatted {
+			if fLen < len(f) {
+				fLen = len(f)
+			}
+			str += f + "\n"
+		}
 	}
+	app.PrintHeader(fLen)
+	println(str[:len(str)-2])
+}
+
+// PrintHeader print the header of the help
+//
+// It takes the length of the longest part of the help
+func (app *CliApp) PrintHeader(fLen int) {
+	ab := ""
+	var name string
+	nLen := len(app.Name)
+	if nLen < fLen {
+		if nLen == fLen-1 {
+			fLen++
+		}
+		diff := fLen - nLen
+		if diff%2 == 0 {
+			fLen++
+			diff++
+		}
+		nAb := ""
+		for i := 0; i < diff/2; i++ {
+			nAb += " "
+		}
+		name = nAb + app.Name + nAb
+		for i := 0; i < fLen; i++ {
+			ab += "="
+		}
+	} else {
+		name = " " + app.Name + " "
+		for i := 0; i < len(name); i++ {
+			ab += "="
+		}
+	}
+	println(ab)
+	println(name)
+	println(ab)
 }
 
 func parseOptions(cli string) ([]OptionPassed, string) {
