@@ -2,6 +2,7 @@ package cliapp_maker
 
 import (
 	"fmt"
+	"github.com/gookit/color"
 	"os"
 	"regexp"
 	"strings"
@@ -17,6 +18,7 @@ type CliApp struct {
 	Version     string
 	VersionNote string
 	Cmds        []Cmd
+	CharsMax    uint
 }
 
 type Context struct {
@@ -27,6 +29,9 @@ type Context struct {
 
 var (
 	globalOptions = make([]Option, 2)
+	secondary     = color.Secondary.Render
+	notice        = color.Notice.Render
+	primary       = color.Primary.Render
 )
 
 func init() {
@@ -43,15 +48,15 @@ func AddGlobalOption(o Option) {
 }
 
 func handleVersion(data *OptionPassed) bool {
-	fmt.Printf("Version: %s\nNotes: %s", data.Context.App.Version, data.Context.App.VersionNote)
+	color.Info.Tips("Version: %s\nNotes: %s", data.Context.App.Version, data.Context.App.VersionNote)
 	return false
 }
 
 func handleHelp(data *OptionPassed) bool {
 	if data.CmdCalled != nil {
-		data.App.generateHelp()
+		data.App.GenerateHelp()
 	} else {
-		data.CmdCalled.generateHelp()
+		data.CmdCalled.GenerateHelp(data.App)
 	}
 	return false
 }
@@ -81,13 +86,13 @@ func (app *CliApp) SetCommands(cmds []Cmd) *CliApp {
 	return app
 }
 
-func (app *CliApp) Handle() {
-	app.handle(os.Args)
+func (app *CliApp) Handle() error {
+	return app.handle(os.Args)
 }
 
 func (app *CliApp) handle(args []string) error {
 	if len(args) == 1 {
-		app.generateHelp()
+		app.GenerateHelp()
 		return nil
 	}
 	cli := genCli(args)
@@ -105,7 +110,7 @@ func (app *CliApp) handle(args []string) error {
 	if !app.handleOptions(nil, options) {
 		return nil
 	}
-	fmt.Printf("The command %s does not exist", args[1])
+	color.Error.Printf("The command %s does not exist", args[1])
 	return fmt.Errorf("The command %s does not exist", args[1])
 }
 
@@ -121,11 +126,57 @@ func (app *CliApp) handleOptions(cmd *Cmd, opts []OptionPassed) bool {
 	return false
 }
 
-func (app *CliApp) generateHelp() {
+func (app *CliApp) GenerateHelp() {
 	println(app.Name)
+	fLen := 0
+	str := ""
 	for _, cmd := range app.Cmds {
-		fmt.Printf("%s - %s\n", cmd.Name, cmd.Help)
+		format := FormatHelp(cmd.Name, cmd.Help)
+		formatted := FormatStringMaxChars(format, app.CharsMax)
+		for _, f := range formatted {
+			if fLen < len(f) {
+				fLen = len(f)
+			}
+			str += f + "\n"
+		}
 	}
+	app.PrintHeader(fLen)
+	println(str[:len(str)-2])
+}
+
+// PrintHeader print the header of the help
+//
+// It takes the length of the longest part of the help
+func (app *CliApp) PrintHeader(fLen int) {
+	ab := ""
+	var name string
+	nLen := len(app.Name)
+	if nLen < fLen {
+		if nLen == fLen-1 {
+			fLen++
+		}
+		diff := fLen - nLen
+		if diff%2 == 0 {
+			fLen++
+			diff++
+		}
+		nAb := ""
+		for i := 0; i < diff/2; i++ {
+			nAb += " "
+		}
+		name = nAb + app.Name + nAb
+		for i := 0; i < fLen; i++ {
+			ab += "="
+		}
+	} else {
+		name = " " + app.Name + " "
+		for i := 0; i < len(name); i++ {
+			ab += "="
+		}
+	}
+	println(ab)
+	println(name)
+	println(ab)
 }
 
 func parseOptions(cli string) ([]OptionPassed, string) {
