@@ -30,8 +30,19 @@ func (cmd *Cmd) SetProcess(fn func(data CmdData)) *Cmd {
 	return cmd
 }
 
-func (cmd *Cmd) GenerateHelp() {
-	fmt.Println(FormatHelp(cmd.Name, cmd.Help))
+func (cmd *Cmd) GenerateHelp(app *CliApp) {
+	f := FormatHelp(cmd.Name, cmd.Help)
+	fLen := len(f)
+	formatted := FormatStringMaxChars(f, app.CharsMax)
+	str := ""
+	for _, fo := range formatted {
+		if fLen < len(fo) {
+			fLen = len(fo)
+		}
+		str += fo + "\n"
+	}
+	app.PrintHeader(len(f))
+	fmt.Println(str)
 	params := ""
 	for i, v := range cmd.Params {
 		if i == 0 {

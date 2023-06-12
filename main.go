@@ -56,7 +56,7 @@ func handleHelp(data *OptionPassed) bool {
 	if data.CmdCalled != nil {
 		data.App.GenerateHelp()
 	} else {
-		data.CmdCalled.GenerateHelp()
+		data.CmdCalled.GenerateHelp(data.App)
 	}
 	return false
 }
